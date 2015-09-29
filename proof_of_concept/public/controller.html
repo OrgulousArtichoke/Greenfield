@@ -1,0 +1,229 @@
+<html>
+<meta name="viewport" content="width=device-width, user-scalable=no" />
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+
+<div class="container">
+<div class="col-md-12 center-block">
+<h1>This is a game controller</h1>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="./lib/phaser.min.js"></script>
+    <p>Press "create player" then use buttons or press keyboard buttons to send inputs to main screen</p>
+
+<a href="#" id="createButton" class="btn btn-lg btn-default"><span class="glyphicon glyphicon-adjust"></span> Create Player</a>
+
+
+<a href="#" id="fuckyah" class="btn btn-lg btn-default"><span class="glyphicon glyphicon-adjust"></span> Lets party</a>
+
+<hr>
+<body>
+
+       <button id="leftButton" class="btn btn-lg btn-warning">LEFT</button>
+    <button type="button"  id="upButton" class="btn btn-lg btn-primary">
+        UP
+      </button>
+  <button type="button" id="rightButton" class="btn btn-lg btn-success">
+        RIGHT
+      </button>
+
+      <h2>Input</h2>  
+<form class="input-group" id="img2b64">
+    <input 
+        type="url" 
+        name="url" 
+        class="form-control"
+        placeholder="Insert an IMAGE-URL" 
+        value="http://upload.wikimedia.org/wikipedia/commons/4/4a/Logo_2013_Google.png"  
+        required>
+    <span class="input-group-btn">
+        <input 
+            type="submit" 
+            class="btn btn-default">
+    </span>
+</form>
+
+<input id="inputFileToLoad" type="file" onchange="loadImageFileAsURL();" />
+  <br />
+  <p>File Contents as DataURL:</p>
+  <textarea id="textAreaFileContents" style="width:640;height:240" ></textarea>
+            
+<hr>
+    
+<h2>Output</h2>        
+<div class="output">
+    <textarea class="form-control"></textarea><br>
+    <a></a><br><br>
+    <img><br>
+</div>
+
+
+<style type="text/css">
+  canvas{
+    display: none !important;
+  }
+</style>
+</body>
+<img id="testImage">
+
+</div>
+</div>
+
+
+
+<!-- <button id="downButton">Down</button> -->
+</div>
+
+
+    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+
+<SCRIPT TYPE="text/javascript">
+var globals = {};
+globals.stuff;
+      var socket = io();
+
+
+function loadImageFileAsURL()
+{
+  var filesSelected = document.getElementById("inputFileToLoad").files;
+  if (filesSelected.length > 0)
+  {
+    var fileToLoad = filesSelected[0];
+
+    var fileReader = new FileReader();
+
+    fileReader.onload = function(fileLoadedEvent) 
+    {
+      var textAreaFileContents = document.getElementById
+      (
+        "textAreaFileContents"
+      );
+  
+      textAreaFileContents.innerHTML = fileLoadedEvent.target.result;
+      socket.emit('base64plz', {base64: fileLoadedEvent.target.result});
+
+    };
+
+    fileReader.readAsDataURL(fileToLoad);
+  }
+}
+  $(document).ready(function() {
+
+      socket.on("base64plz", function(data){
+        console.log("it is real...salvation!")
+        console.log('omg it happened.' +  data.base64)
+
+
+        console.log(data.base64.base64)
+        document.getElementById('testImage').setAttribute( 'src', data.base64.base64);
+
+      })
+      var game = new Phaser.Game(0, 0, Phaser.AUTO, 'phaser-example', { update:update })
+      function update(){
+        var cursors = game.input.keyboard.createCursorKeys();
+        if (cursors.left.isDown)
+        { 
+          console.log("firing left")
+            socket.emit("left button", {somedata:"some value"});
+            
+        }
+        else if (cursors.right.isDown)
+        {
+            socket.emit("right button", {somedata:"some value"});
+        }
+        if (cursors.up.isDown)
+        {
+            socket.emit("up button", {});
+            console.log("firing up...")
+        }
+
+
+      }
+
+      $("#fuckyah").on('click', function(){
+        console.log("fugged yah event");
+        socket.emit('base64plz', {base64: globals.stuff});
+
+      })
+
+    $("#createButton").one('click', function(){
+      console.log("Click event");
+      socket.emit('new player', {});
+       $(this).attr('disabled', 'disabled');
+
+    })
+
+    $("#rightButton").on('click', function(){
+      console.log("Click event");
+      socket.emit('right button', {x:2,y:0});
+
+    });
+    $("#leftButton").on('click', function(){
+      console.log("Click event");
+      socket.emit('left button', {x:-1,y:0});
+      cursors.left.isDown = true;
+
+    })
+    
+    $("#upButton").on('click', function(){
+      console.log("Click event");
+      socket.emit('up button', {x:0,y:-1});
+    });
+
+    $("#downButton").on('click', function(){
+      console.log("Click event");
+      socket.emit('down button', {x:0,y:1});
+    });
+    
+
+    /**
+     * convertImgToBase64
+     * @param  {String}   url
+     * @param  {Function} callback
+     * @param  {String}   [outputFormat='image/png']
+     * @author HaNdTriX
+     * @example
+      convertImgToBase64('http://goo.gl/AOxHAL', function(base64Img){
+        console.log('IMAGE:',base64Img);
+      })
+     */
+    function convertImgToBase64(url, callback, outputFormat){
+      var img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = function(){
+          var canvas = document.createElement('CANVAS');
+          var ctx = canvas.getContext('2d');
+        canvas.height = this.height;
+        canvas.width = this.width;
+          ctx.drawImage(this,0,0);
+          var dataURL = canvas.toDataURL(outputFormat || 'image/png');
+          callback(dataURL);
+          canvas = null; 
+      };
+      img.src = url;
+    }
+
+
+    $('#img2b64').submit(function(event){
+        var imageUrl = $(this).find('input[name=url]').val();
+        console.log('imageUrl', imageUrl);
+        convertImgToBase64(imageUrl, function(base64Img){
+            $('.output')
+                .find('textarea')
+                    .val(base64Img)
+                    .end()
+                .find('a')
+                    .attr('href', base64Img)
+                    .text(base64Img)
+                    .end()
+                .find('img')
+                    .attr('src', base64Img);
+        });
+        
+        event.preventDefault();
+    });
+
+
+
+  });
+
+</SCRIPT>
+</html>
