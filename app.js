@@ -62,7 +62,10 @@ io.on('connection', function(socket){
 
   socket.on("right button", rightButton);
 
-  socket.on("player killed", function(data){console.log("player "+(data.id)+" was killed")});
+  socket.on("player killed", playerKilled);
+
+  socket.on("player shot", playerShot);
+
 
 });
 
@@ -97,6 +100,17 @@ function shootButton(){
   this.broadcast.emit("shoot button", {id:this.id});
 }
 
+function shootButton(){
+  console.log("A SHOOT BUTTON WAS PRESSED!!");
+  this.broadcast.emit("shoot button", {id:this.id});
+}
+
+function playerKilled(data){
+  io.to(data.id).emit('player killed', {id: data.id, message: "You've been tomato'ed"});
+}
+function playerShot(data){
+  io.to(data.id).emit('player shot', {id: data.id, health: data.health});
+}
 
 /*****************************
   CONNECT/DISCONNECT HANDLERS
