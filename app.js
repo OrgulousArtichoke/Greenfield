@@ -35,6 +35,7 @@ app.get('/controller', function(req, res){
 app.use(express.static(path.join(__dirname, 'public/client')));
 app.use('/js', express.static(path.join(__dirname, 'public/client/js')));
 app.use('/lib', express.static(path.join(__dirname, 'public/client/lib')));
+app.use('/controller', express.static(path.join(__dirname, 'public/controller')));
 
 
 var globals = {};
@@ -65,6 +66,8 @@ io.on('connection', function(socket){
   socket.on("player killed", playerKilled);
 
   socket.on("player shot", playerShot);
+
+  socket.on("player ready", playerReady);
 
 
 });
@@ -100,16 +103,17 @@ function shootButton(){
   this.broadcast.emit("shoot button", {id:this.id});
 }
 
-function shootButton(){
-  console.log("A SHOOT BUTTON WAS PRESSED!!");
-  this.broadcast.emit("shoot button", {id:this.id});
-}
-
 function playerKilled(data){
   io.to(data.id).emit('player killed', {id: data.id, message: "You've been tomato'ed"});
 }
 function playerShot(data){
   io.to(data.id).emit('player shot', {id: data.id, health: data.health});
+}
+
+function playerReady(){
+  
+  io.sockets.emit("activate player", {});    
+
 }
 
 /*****************************
@@ -138,7 +142,7 @@ function onNewPlayer() {
 };
 
 function onGameStart() {
-
+  console.log("ALERT: new game started");
   for (var i = 0; i < globals.currentPlayers.length; i++){
     //globals.currentPlayers.push(this.id);
     // var playerNumber = exports.helpers.findArrayIndex(this.id, globals.currentPlayers) + 1;
