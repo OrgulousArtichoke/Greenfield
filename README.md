@@ -25,7 +25,7 @@
 
 ## Usage
 
-> To play: Open [this page](http://www.hr3232.elasticbeanstalk.com) on a big screen, then open a [controller](http://www.hr3232.elasticbeanstalk.com/controller) on your phone and have all your friends jump in!
+> To play: Open [this page](http://tinyurl.com/sumotomato) on a big screen, then open a [controller](http://tinyurl.com/sumotomato/controller) on your phone and have all your friends jump in!
 
 > To develop: fork the repository, clone to your machine, and follow the development instructions below.
 
